@@ -3,10 +3,15 @@ name: Generate regional playlists
 on:
   workflow_dispatch:
   schedule:
-    - cron: '17 3 * * *'
+    # GitHub Actions cron is UTC. Run at 00:17 and 12:17 UTC daily.
+    - cron: '17 */12 * * *'
 
 permissions:
   contents: write
+
+concurrency:
+  group: generate-regional-playlists
+  cancel-in-progress: false
 
 jobs:
   build:
