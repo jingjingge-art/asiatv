@@ -1,0 +1,34 @@
+name: Generate global IP-country playlist
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Separate schedule and concurrency group from the existing Asia playlist workflow.
+    - cron: '43 2 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: generate-global-ip-country-playlist
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Generate the IP-country playlist
+        run: python3 scripts/generate_global_playlist.py
+      - name: Commit generated global playlist
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add 全球频道.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "Update global IP-country playlist"
+            git push
+          fi
